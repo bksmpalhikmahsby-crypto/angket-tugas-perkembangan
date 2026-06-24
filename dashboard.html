@@ -194,6 +194,23 @@ a { color: var(--teal); }
 }
 .btn-link:hover { text-decoration: underline; }
 
+.btn-danger {
+  background: none; border: none; color: #D64545;
+  font-weight: 600; font-size: 0.9rem; padding: 6px 10px;
+}
+.btn-danger:hover { text-decoration: underline; }
+
+.btn-danger-outline {
+  background: #FBE6E0;
+  color: #9C3B25;
+  border: 1.5px solid #EFB8A6;
+  padding: 12px 20px;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 0.92rem;
+}
+.btn-danger-outline:hover { background: #F6D2C9; }
+
 .duplicate-actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 8px; }
 
 /* ---------- Quiz ---------- */
@@ -611,6 +628,48 @@ async function fetchAllSubmissions() {
     return { ok: false, data: [], error: String(e) };
   }
 }
+
+async function deleteOneSubmission(kelas, noAbsen) {
+  if (!IS_CONFIGURED) return false;
+  try {
+    const res = await fetch(SHEET_API_URL, {
+      method: "POST",
+      body: JSON.stringify({ secret: API_SECRET, action: "deleteOne", kelas: kelas, noAbsen: noAbsen })
+    });
+    const json = await res.json();
+    return !!(json && json.ok);
+  } catch (e) {
+    return false;
+  }
+}
+
+async function deleteClassSubmissions(kelas) {
+  if (!IS_CONFIGURED) return false;
+  try {
+    const res = await fetch(SHEET_API_URL, {
+      method: "POST",
+      body: JSON.stringify({ secret: API_SECRET, action: "deleteClass", kelas: kelas })
+    });
+    const json = await res.json();
+    return !!(json && json.ok);
+  } catch (e) {
+    return false;
+  }
+}
+
+async function deleteAllSubmissions() {
+  if (!IS_CONFIGURED) return false;
+  try {
+    const res = await fetch(SHEET_API_URL, {
+      method: "POST",
+      body: JSON.stringify({ secret: API_SECRET, action: "deleteAll" })
+    });
+    const json = await res.json();
+    return !!(json && json.ok);
+  } catch (e) {
+    return false;
+  }
+}
 /* ===================== STATE ===================== */
 const state = {
   view: IS_CONFIGURED ? "loading" : "notConfigured",
@@ -717,6 +776,63 @@ function filteredSubmissions() {
   return state.submissions.filter(function (s) { return s.kelas === state.filterKelas; });
 }
 
+/* ===================== HAPUS DATA ===================== */
+async function confirmDeleteOne(kelas, noAbsen, namaLengkap) {
+  const ok = window.confirm(
+    "Hapus data siswa \"" + namaLengkap + "\" (Kelas " + kelas + ", No. Absen " + noAbsen + ")?\n\n" +
+    "Tindakan ini TIDAK BISA dibatalkan."
+  );
+  if (!ok) return;
+  showToast("Menghapus data...");
+  const success = await deleteOneSubmission(kelas, noAbsen);
+  if (success) {
+    showToast("Data " + namaLengkap + " berhasil dihapus.");
+    await loadData();
+  } else {
+    showToast("Gagal menghapus data. Coba lagi atau periksa koneksi.");
+  }
+}
+
+async function confirmDeleteClass(kelas) {
+  const count = state.submissions.filter(function (s) { return s.kelas === kelas; }).length;
+  const ok = window.confirm(
+    "Hapus SEMUA data siswa di kelas " + kelas + "? (" + count + " siswa)\n\n" +
+    "Tindakan ini TIDAK BISA dibatalkan."
+  );
+  if (!ok) return;
+  showToast("Menghapus data kelas " + kelas + "...");
+  const success = await deleteClassSubmissions(kelas);
+  if (success) {
+    showToast("Data kelas " + kelas + " berhasil dihapus.");
+    state.filterKelas = "ALL";
+    await loadData();
+  } else {
+    showToast("Gagal menghapus data. Coba lagi atau periksa koneksi.");
+  }
+}
+
+async function confirmDeleteAll() {
+  const total = state.submissions.length;
+  const ok = window.confirm(
+    "PERINGATAN: Anda akan menghapus SELURUH data (" + total + " siswa, semua kelas).\n\n" +
+    "Tindakan ini TIDAK BISA dibatalkan. Lanjutkan?"
+  );
+  if (!ok) return;
+  const typed = window.prompt('Untuk konfirmasi terakhir, ketik kata "HAPUS" (huruf besar) untuk melanjutkan:');
+  if (typed !== "HAPUS") {
+    showToast("Penghapusan dibatalkan.");
+    return;
+  }
+  showToast("Menghapus semua data...");
+  const success = await deleteAllSubmissions();
+  if (success) {
+    showToast("Semua data berhasil dihapus.");
+    await loadData();
+  } else {
+    showToast("Gagal menghapus data. Coba lagi atau periksa koneksi.");
+  }
+}
+
 function renderDashboard() {
   const subs = filteredSubmissions();
   const kelasPresent = Array.from(new Set(state.submissions.map(function (s) { return s.kelas; }))).sort();
@@ -744,7 +860,8 @@ function renderDashboard() {
           "<td>" + escapeHtml(s.noAbsen) + "</td>" +
           "<td>" + badgeHtml(s.results.total.cat) + "</td>" +
           "<td>" + fmtDate(s.savedAt) + "</td>" +
-          '<td><button class="btn-link" onclick="openDetail(\'' + s.kelas + "','" + s.noAbsen + "')\">Detail</button></td>" +
+          '<td><button class="btn-link" onclick="openDetail(\'' + s.kelas + "','" + s.noAbsen + "')\">Detail</button>" +
+            ' <button class="btn-link btn-danger" onclick="confirmDeleteOne(\'' + s.kelas + "','" + s.noAbsen + "','" + escapeHtml(s.namaLengkap).replace(/'/g, "\\'") + '\')">Hapus</button></td>' +
         "</tr>"
       );
     }).join("");
@@ -756,10 +873,14 @@ function renderDashboard() {
         '<div class="dash-actions">' +
           '<button class="btn-secondary" onclick="loadData()">Muat Ulang Data</button>' +
           '<button class="btn-secondary" onclick="downloadCSV()">Unduh CSV</button>' +
+          '<button class="btn-danger-outline" onclick="confirmDeleteAll()">Hapus Semua Data</button>' +
         "</div>" +
       "</div>" +
       '<div class="dash-filter">' +
         "<label>Filter Kelas: <select onchange=\"setKelasFilter(this.value)\">" + kelasOpts + "</select></label>" +
+        (state.filterKelas !== "ALL"
+          ? ' <button class="btn-danger-outline" onclick="confirmDeleteClass(\'' + state.filterKelas + '\')">Hapus Data Kelas ' + escapeHtml(state.filterKelas) + "</button>"
+          : "") +
       "</div>" +
       '<div class="summary-cards">' +
         '<div class="summary-card"><span class="summary-num">' + subs.length + '</span><span class="summary-label">Siswa sudah mengisi</span></div>' +
