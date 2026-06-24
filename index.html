@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Angket Tugas Perkembangan - Siswa SMP</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root {
+  --bg: #FAF6EF;
+  --surface: #FFFFFF;
+  --ink: #2E3A59;
+  --ink-soft: #5B6478;
+  --border: #E3DCCB;
+  --accent: #F2994A;
+  --accent-dark: #D9782E;
+  --teal: #2F9E8F;
+  --teal-soft: rgba(47,158,143,0.12);
+  --shadow: 0 4px 18px rgba(46,58,89,0.08);
+  --radius: 18px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  background-image:
+    radial-gradient(circle at 8% 12%, rgba(242,153,74,0.06), transparent 40%),
+    radial-gradient(circle at 92% 85%, rgba(47,158,143,0.07), transparent 40%);
+  color: var(--ink);
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3 {
+  font-family: 'Fraunces', serif;
+  color: var(--ink);
+  margin: 0 0 8px 0;
+  line-height: 1.15;
+}
+
+h1 { font-size: 2.4rem; font-weight: 600; }
+h2 { font-size: 1.7rem; font-weight: 600; }
+h3 { font-size: 1.05rem; font-weight: 600; }
+
+p { line-height: 1.55; }
+.muted { color: var(--ink-soft); }
+
+button { font-family: inherit; cursor: pointer; }
+a { color: var(--teal); }
+
+#app {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 32px 20px 64px;
+  min-height: 100vh;
+}
+
+/* ---------- Landing ---------- */
+.hero { text-align: center; padding: 40px 0 10px; }
+.eyebrow {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.78rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent-dark);
+  margin-bottom: 10px;
+}
+.lead {
+  max-width: 560px;
+  margin: 16px auto 36px;
+  color: var(--ink-soft);
+  font-size: 1.05rem;
+}
+
+.role-cards {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 28px;
+}
+.role-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 28px 32px;
+  width: 220px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  box-shadow: var(--shadow);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.role-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(46,58,89,0.13); }
+.role-card:focus-visible { outline: 3px solid var(--teal); outline-offset: 2px; }
+.role-icon {
+  width: 52px; height: 52px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: white;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 600;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1rem;
+}
+.role-card-alt .role-icon { background: var(--teal); }
+.role-title { font-family: 'Fraunces', serif; font-weight: 600; font-size: 1.15rem; }
+.role-sub { color: var(--ink-soft); font-size: 0.88rem; text-align: center; }
+.footnote { font-size: 0.82rem; color: var(--ink-soft); margin-top: 18px; }
+
+/* ---------- Card pages ---------- */
+.card-page {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 32px;
+  box-shadow: var(--shadow);
+  margin-top: 10px;
+}
+.card-page.narrow { max-width: 480px; margin: 10px auto 0; }
+.card-page.wide { max-width: 880px; }
+
+.back-link {
+  background: none; border: none; color: var(--teal);
+  font-size: 0.92rem; padding: 0; margin-bottom: 18px; font-weight: 600;
+}
+.back-link:hover { text-decoration: underline; }
+
+.alert-error {
+  background: #FBE6E0; color: #9C3B25; border: 1px solid #EFB8A6;
+  border-radius: 10px; padding: 10px 14px; font-size: 0.9rem; margin-bottom: 16px;
+}
+
+/* ---------- Form ---------- */
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin: 18px 0 24px;
+}
+.form-grid label {
+  display: flex; flex-direction: column; gap: 6px;
+  font-size: 0.85rem; font-weight: 600; color: var(--ink-soft);
+}
+.form-grid input, .form-grid select {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 1rem;
+  padding: 11px 13px;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  background: #FFFDFA;
+  color: var(--ink);
+}
+.form-grid input:focus, .form-grid select:focus {
+  outline: none; border-color: var(--teal);
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: white;
+  border: none;
+  padding: 13px 24px;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 1rem;
+  box-shadow: 0 3px 10px rgba(242,153,74,0.35);
+}
+.btn-primary:hover { background: var(--accent-dark); }
+.btn-primary:disabled { opacity: 0.6; cursor: default; }
+.btn-primary:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+
+.btn-secondary {
+  background: var(--teal-soft);
+  color: var(--teal);
+  border: 1.5px solid var(--teal);
+  padding: 12px 22px;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 0.96rem;
+}
+.btn-secondary:hover { background: rgba(47,158,143,0.2); }
+
+.btn-link {
+  background: none; border: none; color: var(--teal);
+  font-weight: 600; font-size: 0.9rem; padding: 6px 10px;
+}
+.btn-link:hover { text-decoration: underline; }
+
+.duplicate-actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 8px; }
+
+/* ---------- Quiz ---------- */
+.quiz-page { padding-bottom: 28px; }
+.progress-wrap { margin-bottom: 22px; }
+.progress-bar {
+  height: 8px; background: var(--border); border-radius: 6px; overflow: hidden;
+}
+.progress-fill {
+  height: 100%; background: linear-gradient(90deg, var(--teal), var(--accent));
+  transition: width 0.25s ease;
+}
+.progress-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.78rem; color: var(--ink-soft); margin: 8px 0 0;
+}
+.section-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--accent-dark); margin-bottom: 4px;
+}
+.likert-key {
+  font-size: 0.82rem; color: var(--ink-soft);
+  background: var(--teal-soft); border-radius: 10px; padding: 10px 14px;
+  margin: 14px 0 6px;
+}
+
+.quiz-list { margin-top: 18px; display: flex; flex-direction: column; gap: 18px; }
+.quiz-item {
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 16px;
+}
+.quiz-item:last-child { border-bottom: none; }
+.item-text { font-size: 1rem; margin: 0 0 12px; }
+.item-no { font-family: 'JetBrains Mono', monospace; color: var(--accent-dark); font-weight: 600; }
+
+.choices { display: flex; gap: 8px; flex-wrap: wrap; }
+.choice-btn {
+  border: 1.5px solid var(--border);
+  background: #FFFDFA;
+  color: var(--ink-soft);
+  padding: 9px 16px;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 0.88rem;
+  font-family: 'JetBrains Mono', monospace;
+  transition: all 0.12s ease;
+}
+.choice-btn:hover { border-color: var(--teal); color: var(--teal); }
+.choice-btn.selected {
+  background: var(--teal);
+  border-color: var(--teal);
+  color: white;
+}
+
+.quiz-nav {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-top: 26px;
+}
+
+/* ---------- Result ---------- */
+.result-header { text-align: center; margin-bottom: 20px; }
+.total-block {
+  display: flex; align-items: center; gap: 22px;
+  background: var(--teal-soft);
+  border-radius: var(--radius);
+  padding: 22px 26px;
+  margin-bottom: 26px;
+  flex-wrap: wrap;
+}
+.seal {
+  flex-shrink: 0;
+  width: 88px; height: 88px;
+  border-radius: 50%;
+  border: 4px double rgba(255,255,255,0.7);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Fraunces', serif;
+  font-size: 1.7rem; font-weight: 700;
+  color: white;
+  transform: rotate(-6deg);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.18);
+}
+.seal-SB { background: #2F9E8F; }
+.seal-B { background: #5FA86B; }
+.seal-C { background: #E8B33D; color: #3A2A06; border-color: rgba(58,42,6,0.25); }
+.seal-K { background: #E8823C; }
+.seal-SK { background: #D64545; }
+.total-text { flex: 1; min-width: 200px; }
+.total-label { font-weight: 600; margin: 0 0 6px; }
+
+.charts-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 28px;
+}
+.chart-box {
+  background: #FFFDFA;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 14px;
+}
+.wide-chart { grid-column: 1 / -1; }
+
+.ind-cards { display: flex; flex-direction: column; gap: 14px; }
+.ind-card {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 18px 20px;
+  background: #FFFDFA;
+}
+.ind-card-head {
+  display: flex; justify-content: space-between; align-items: center; gap: 10px;
+  margin-bottom: 8px; flex-wrap: wrap;
+}
+.ind-narrative { margin: 0; color: var(--ink-soft); font-size: 0.95rem; }
+
+.badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.78rem; font-weight: 600;
+  padding: 5px 11px; border-radius: 20px;
+  white-space: nowrap;
+}
+
+.raw-answers { margin-top: 26px; }
+.raw-answers summary {
+  cursor: pointer; font-weight: 600; color: var(--teal); padding: 8px 0;
+}
+.raw-table { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 0.86rem; }
+.raw-table th, .raw-table td { border: 1px solid var(--border); padding: 8px 10px; text-align: left; }
+.raw-table th { background: var(--teal-soft); font-family: 'JetBrains Mono', monospace; font-size: 0.76rem; }
+
+.result-actions { display: flex; gap: 12px; justify-content: center; margin-top: 30px; flex-wrap: wrap; }
+
+/* ---------- Teacher dashboard ---------- */
+.dash-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.dash-filter { margin: 14px 0 20px; }
+.dash-filter select {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  padding: 9px 12px; border-radius: 10px; border: 1.5px solid var(--border);
+  font-size: 0.92rem;
+}
+.summary-cards { display: flex; gap: 16px; margin-bottom: 24px; flex-wrap: wrap; }
+.summary-card {
+  flex: 1; min-width: 160px;
+  background: var(--teal-soft);
+  border-radius: 14px; padding: 18px 20px;
+  display: flex; flex-direction: column; gap: 4px;
+}
+.summary-num { font-family: 'Fraunces', serif; font-size: 1.8rem; font-weight: 600; color: var(--teal); }
+.summary-label { font-size: 0.85rem; color: var(--ink-soft); }
+
+.table-wrap { overflow-x: auto; margin-top: 10px; }
+.data-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+.data-table th, .data-table td { padding: 10px 12px; border-bottom: 1px solid var(--border); text-align: left; white-space: nowrap; }
+.data-table th { font-family: 'JetBrains Mono', monospace; font-size: 0.74rem; text-transform: uppercase; color: var(--ink-soft); letter-spacing: 0.04em; }
+.data-table tr:hover { background: #FBF8F1; }
+
+/* ---------- Toast ---------- */
+#toast {
+  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(20px);
+  background: var(--ink); color: white; padding: 12px 22px; border-radius: 12px;
+  font-size: 0.9rem; opacity: 0; transition: all 0.25s ease; pointer-events: none;
+  max-width: 90vw; text-align: center; z-index: 999;
+}
+#toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* ---------- Responsive ---------- */
+@media (max-width: 680px) {
+  h1 { font-size: 1.9rem; }
+  .card-page { padding: 22px 18px; }
+  .form-grid { grid-template-columns: 1fr; }
+  .role-cards { flex-direction: column; align-items: center; }
+  .role-card { width: 100%; max-width: 280px; }
+  .charts-grid { grid-template-columns: 1fr; }
+  .total-block { flex-direction: column; text-align: center; }
+  .quiz-nav { flex-direction: column-reverse; gap: 12px; }
+  .quiz-nav button { width: 100%; }
+  .dash-top { flex-direction: column; gap: 12px; align-items: stretch; }
+}
+
+/* ---------- Print ---------- */
+@media print {
+  .back-link, .result-actions, #toast { display: none !important; }
+  body { background: white; }
+  .card-page { box-shadow: none; border: none; }
+}
+
+/* ---------- additions for split student/teacher files ---------- */
+.hero-small { text-align: center; margin-bottom: 26px; }
+.hero-small h1 { font-size: 1.9rem; }
+.hero-small .lead { margin: 12px auto 0; font-size: 0.98rem; }
+.dash-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 14px; margin-bottom: 8px; flex-wrap: wrap; }
+.dash-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+@media (max-width: 680px) {
+  .dash-top { flex-direction: column; }
+  .dash-actions { width: 100%; }
+  .dash-actions button { flex: 1; }
+}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="toast"></div>
+<script>
+/* ===================== CONFIG (Bapak/Ibu wajib isi setelah deploy Apps Script) ===================== */
+const SHEET_API_URL = "https://script.google.com/macros/s/AKfycbxEmH0XFRtykgPxjlshvRh9xdZ4qzbqKDa8KGwznupvzbXH2W1VHMkkrr0RSEMa6HYxRg/exec";
+const API_SECRET = "bk-40a0f9768ebe";
+const IS_CONFIGURED = SHEET_API_URL.indexOf("https://script.google.com") === 0;
+
+/* ===================== DATA ===================== */
+const INDICATORS = [
+  { id: 1, name: "Kematangan Emosional", desc: "Mengenali, mengelola, dan mengungkapkan perasaan dengan baik" },
+  { id: 2, name: "Kematangan Intelektual", desc: "Berpikir kritis, mengambil keputusan, dan merencanakan masa depan" },
+  { id: 3, name: "Tanggung Jawab", desc: "Menjalankan tugas, mematuhi aturan, dan menerima konsekuensi" },
+  { id: 4, name: "Penerimaan Diri & Pengembangan Diri", desc: "Menerima diri sendiri dan terus mengembangkan potensi" },
+  { id: 5, name: "Hubungan dengan Teman Sebaya", desc: "Menjalin hubungan baik, bekerja sama, dan menyelesaikan konflik" }
+];
+
+const ITEMS = [
+  { id: 1, indicator: 1, type: "F", text: "Saya mencoba tenang terlebih dahulu saat sedang merasa marah." },
+  { id: 2, indicator: 1, type: "F", text: "Saya berani mengungkapkan perasaan sedih saya kepada orang yang dipercaya." },
+  { id: 3, indicator: 1, type: "F", text: "Saya tahu apa yang menyebabkan saya merasa tidak nyaman." },
+  { id: 4, indicator: 1, type: "F", text: "Saya merasa kasihan jika melihat teman sedang dalam kesulitan." },
+  { id: 5, indicator: 1, type: "F", text: "Saya bersedia menjadi pendengar yang baik bagi teman yang bercerita." },
+  { id: 6, indicator: 1, type: "UF", text: "Saya mudah terpancing emosi jika ada orang yang mengejek saya." },
+  { id: 7, indicator: 1, type: "UF", text: "Saya sering bertindak kasar (berteriak/membanting barang) saat kesal." },
+  { id: 8, indicator: 1, type: "UF", text: "Saya cenderung memendam perasaan sampai akhirnya meledak." },
+  { id: 9, indicator: 1, type: "UF", text: "Saya merasa tidak peduli jika ada teman yang ditegur oleh guru." },
+  { id: 10, indicator: 1, type: "UF", text: "Saya merasa senang jika melihat teman yang saya benci gagal." },
+
+  { id: 11, indicator: 2, type: "F", text: "Saya mencari tahu kebenaran sebuah informasi sebelum memercayainya." },
+  { id: 12, indicator: 2, type: "F", text: "Saya suka bertanya jika ada materi pelajaran yang tidak logis bagi saya." },
+  { id: 13, indicator: 2, type: "F", text: "Saya memikirkan akibat buruknya sebelum melakukan sesuatu." },
+  { id: 14, indicator: 2, type: "F", text: "Saya sudah memiliki gambaran ingin masuk SMA/SMK mana nanti." },
+  { id: 15, indicator: 2, type: "F", text: "Saya membuat jadwal belajar harian agar tugas tidak menumpuk." },
+  { id: 16, indicator: 2, type: "UF", text: "Saya langsung menerima pendapat orang lain tanpa dipikirkan lagi." },
+  { id: 17, indicator: 2, type: "UF", text: "Saya sering mengambil keputusan secara terburu-buru." },
+  { id: 18, indicator: 2, type: "UF", text: "Saya bingung menentukan pilihan jika tidak dibantu orang tua." },
+  { id: 19, indicator: 2, type: "UF", text: "Saya sekolah hanya karena disuruh orang tua, tanpa tujuan yang jelas." },
+  { id: 20, indicator: 2, type: "UF", text: "Saya tidak peduli dengan nilai rapor saya di masa depan." },
+
+  { id: 21, indicator: 3, type: "F", text: "Saya mengerjakan tugas sekolah sebaik mungkin." },
+  { id: 22, indicator: 3, type: "F", text: "Saya datang ke sekolah tepat waktu sesuai aturan." },
+  { id: 23, indicator: 3, type: "F", text: "Saya memakai seragam sekolah dengan rapi dan lengkap." },
+  { id: 24, indicator: 3, type: "F", text: "Saya berani mengakui jika saya melakukan kesalahan." },
+  { id: 25, indicator: 3, type: "F", text: "Saya siap menerima sanksi jika terbukti melanggar aturan." },
+  { id: 26, indicator: 3, type: "UF", text: "Saya baru mengerjakan tugas jika sudah mepet waktu pengumpulan." },
+  { id: 27, indicator: 3, type: "UF", text: "Saya sering menyontek pekerjaan teman agar cepat selesai." },
+  { id: 28, indicator: 3, type: "UF", text: "Saya sering melanggar aturan sekolah jika merasa tidak diawasi guru." },
+  { id: 29, indicator: 3, type: "UF", text: "Saya mencari alasan untuk membenarkan kesalahan saya." },
+  { id: 30, indicator: 3, type: "UF", text: "Saya menyalahkan orang lain atas kegagalan yang saya alami." },
+
+  { id: 31, indicator: 4, type: "F", text: "Saya mengetahui bakat atau kelebihan yang saya miliki." },
+  { id: 32, indicator: 4, type: "F", text: "Saya merasa nyaman menjadi diri saya sendiri." },
+  { id: 33, indicator: 4, type: "F", text: "Saya tetap percaya diri meskipun penampilan saya sederhana." },
+  { id: 34, indicator: 4, type: "F", text: "Saya mencoba hal-hal baru untuk meningkatkan kemampuan saya." },
+  { id: 35, indicator: 4, type: "F", text: "Saya senang jika mendapatkan tantangan baru di sekolah." },
+  { id: 36, indicator: 4, type: "UF", text: "Saya merasa tidak memiliki kelebihan apa pun dibandingkan teman lain." },
+  { id: 37, indicator: 4, type: "UF", text: "Saya merasa tidak bahagia dengan keadaan diri saya sekarang." },
+  { id: 38, indicator: 4, type: "UF", text: "Saya sering membanding-bandingkan diri saya dengan orang lain." },
+  { id: 39, indicator: 4, type: "UF", text: "Saya malas belajar hal baru karena merasa tidak akan bisa." },
+  { id: 40, indicator: 4, type: "UF", text: "Saya cepat menyerah jika usaha saya belum berhasil." },
+
+  { id: 41, indicator: 5, type: "F", text: "Saya senang bekerja dalam kelompok untuk menyelesaikan tugas." },
+  { id: 42, indicator: 5, type: "F", text: "Saya mengajak teman bicara baik-baik jika ada perselisihan." },
+  { id: 43, indicator: 5, type: "F", text: "Saya bersedia meminta maaf lebih dulu jika terjadi pertengkaran." },
+  { id: 44, indicator: 5, type: "F", text: "Saya berteman dengan siapa saja tanpa membedakan latar belakangnya." },
+  { id: 45, indicator: 5, type: "F", text: "Saya mendengarkan pendapat teman sampai selesai sebelum menanggapi." },
+  { id: 46, indicator: 5, type: "UF", text: "Saya lebih suka mengerjakan semuanya sendiri karena tidak percaya teman." },
+  { id: 47, indicator: 5, type: "UF", text: "Saya sering memaksakan kehendak saat diskusi kelompok." },
+  { id: 48, indicator: 5, type: "UF", text: "Saya memusuhi teman yang tidak sependapat dengan saya." },
+  { id: 49, indicator: 5, type: "UF", text: "Saya sering mengejek teman yang memiliki kekurangan fisik." },
+  { id: 50, indicator: 5, type: "UF", text: "Saya merasa pendapat saya adalah yang paling benar di antara teman." }
+];
+
+const NARRATIVES = {
+  1: {
+    SB: "Kamu sudah sangat baik dalam mengenali dan mengelola perasaanmu sendiri. Kamu bisa tetap tenang saat marah atau sedih, dan peduli pada perasaan teman-temanmu. Pertahankan kemampuan ini ya!",
+    B: "Kamu cukup baik dalam mengelola emosi. Sebagian besar waktu kamu bisa mengendalikan diri dan memahami perasaanmu, meski sesekali masih perlu belajar lebih tenang menghadapi situasi yang membuatmu kesal.",
+    C: "Kamu kadang masih kesulitan mengelola perasaan, misalnya saat marah atau sedih. Tidak apa-apa, ini hal yang wajar dan bisa terus dilatih. Coba mulai mengenali apa yang membuatmu merasa begitu.",
+    K: "Kamu sering merasa kesulitan mengendalikan emosi, seperti mudah marah atau memendam perasaan. Yuk, coba ceritakan perasaanmu pada orang yang kamu percaya, termasuk Guru BK, supaya kamu merasa lebih ringan.",
+    SK: "Sepertinya kamu sedang mengalami masa yang cukup berat dalam mengelola perasaan. Ini bukan salahmu, dan kamu tidak sendirian. Ayo bicara dengan Guru BK supaya bisa dicarikan cara terbaik untuk membantumu."
+  },
+  2: {
+    SB: "Kamu sudah sangat baik dalam berpikir kritis dan membuat keputusan. Kamu suka mencari tahu kebenaran informasi dan punya rencana yang jelas untuk masa depanmu. Keren!",
+    B: "Kamu cukup baik dalam berpikir dan mengambil keputusan. Kamu mulai punya gambaran tentang masa depan, walau terkadang masih perlu latihan lebih banyak sebelum memutuskan sesuatu.",
+    C: "Kamu kadang masih ragu saat harus berpikir kritis atau membuat keputusan sendiri. Coba lebih sering bertanya 'kenapa' dan mencari informasi sebelum percaya pada sesuatu.",
+    K: "Kamu sering merasa bingung saat harus mengambil keputusan atau memikirkan rencana ke depan. Tidak masalah, ini bisa dilatih sedikit demi sedikit. Diskusikan dengan Guru BK tentang cita-cita dan rencana belajarmu.",
+    SK: "Sepertinya kamu masih kesulitan dalam berpikir kritis dan merencanakan masa depan. Yuk, jangan ragu untuk minta bantuan Guru BK atau orang tua agar kamu lebih percaya diri dalam menentukan pilihan."
+  },
+  3: {
+    SB: "Kamu sangat bertanggung jawab! Kamu mengerjakan tugas dengan baik, mematuhi aturan, dan berani mengakui kesalahan. Pertahankan sikap ini terus ya.",
+    B: "Kamu cukup bertanggung jawab dalam menjalankan tugas dan aturan sekolah, meskipun terkadang masih perlu sedikit pengingat untuk lebih disiplin.",
+    C: "Kamu kadang masih menunda tugas atau melanggar aturan kecil. Coba mulai membuat catatan tugas supaya tidak lupa dan lebih disiplin lagi.",
+    K: "Kamu sering merasa sulit menyelesaikan tugas tepat waktu atau mengikuti aturan. Yuk, coba cari tahu apa yang membuatmu sulit, dan jangan ragu cerita ke Guru BK.",
+    SK: "Sepertinya kamu masih kesulitan besar dalam menjalankan tanggung jawab di sekolah. Ini bisa diperbaiki pelan-pelan dengan bantuan Guru BK dan orang tua, jadi jangan khawatir."
+  },
+  4: {
+    SB: "Kamu sangat menerima dirimu sendiri dan terus berusaha berkembang. Kamu tahu kelebihanmu dan tidak takut mencoba hal baru. Pertahankan semangat ini!",
+    B: "Kamu cukup nyaman dengan dirimu sendiri dan mau belajar hal baru, meski sesekali masih merasa kurang percaya diri.",
+    C: "Kamu kadang masih merasa kurang percaya diri atau membandingkan dirimu dengan orang lain. Coba mulai mencatat hal-hal baik tentang dirimu setiap hari.",
+    K: "Kamu sering merasa minder atau kurang percaya diri dengan kemampuanmu. Ingat, setiap orang punya kelebihan masing-masing. Ceritakan perasaanmu ke Guru BK ya.",
+    SK: "Sepertinya kamu sedang merasa berat tentang dirimu sendiri. Kamu berharga, dan ini bisa dibantu pelan-pelan. Yuk, segera bicara dengan Guru BK supaya kamu merasa lebih baik."
+  },
+  5: {
+    SB: "Kamu sangat baik dalam berteman! Kamu bisa bekerja sama, menyelesaikan masalah dengan baik, dan menghargai teman-temanmu. Lanjutkan sikap baik ini ya.",
+    B: "Kamu cukup baik dalam menjalin hubungan dengan teman, meski terkadang masih perlu belajar lebih sabar saat ada perbedaan pendapat.",
+    C: "Kamu kadang masih kesulitan dalam bekerja sama atau menyelesaikan masalah dengan teman. Coba lebih sering mengajak bicara baik-baik kalau ada masalah.",
+    K: "Kamu sering merasa kesulitan dalam berteman atau sering terjadi konflik. Tidak apa-apa, ini bisa diperbaiki. Yuk, cerita ke Guru BK tentang apa yang kamu rasakan dengan teman-temanmu.",
+    SK: "Sepertinya hubunganmu dengan teman-teman sedang tidak baik-baik saja. Kamu tidak sendiri, dan Guru BK siap membantu mencari solusi terbaik untukmu."
+  }
+};
+
+const OVERALL_NARRATIVES = {
+  SB: "Secara keseluruhan, perkembanganmu sangat baik di hampir semua aspek! Kamu sudah menunjukkan kematangan yang luar biasa untuk usiamu. Tetap pertahankan dan terus kembangkan dirimu.",
+  B: "Secara keseluruhan, perkembanganmu sudah baik. Ada beberapa aspek yang masih bisa ditingkatkan, tapi kamu sudah berada di jalur yang tepat.",
+  C: "Secara keseluruhan, perkembanganmu cukup baik. Ada beberapa aspek yang masih perlu kamu latih lebih lanjut. Jangan khawatir, ini adalah proses belajar yang wajar.",
+  K: "Secara keseluruhan, ada beberapa aspek perkembanganmu yang masih perlu mendapat perhatian lebih. Yuk, jangan ragu untuk berdiskusi dengan Guru BK agar kamu mendapat dukungan yang tepat.",
+  SK: "Secara keseluruhan, sepertinya kamu sedang menghadapi banyak tantangan dalam perkembanganmu. Ini bukan akhir dari segalanya, banyak orang yang siap membantumu, termasuk Guru BK dan orang tua. Yuk, mulai bicara dengan mereka."
+};
+
+const CATEGORY_INFO = {
+  SB: { label: "Sangat Baik", bg: "#2F9E8F", text: "#FFFFFF" },
+  B: { label: "Baik", bg: "#5FA86B", text: "#FFFFFF" },
+  C: { label: "Cukup", bg: "#E8B33D", text: "#3A2A06" },
+  K: { label: "Kurang", bg: "#E8823C", text: "#FFFFFF" },
+  SK: { label: "Sangat Kurang", bg: "#D64545", text: "#FFFFFF" }
+};
+
+const KELAS_OPTIONS = [];
+["7", "8", "9"].forEach(function (g) {
+  "ABCDEFGHIJ".split("").forEach(function (l) {
+    KELAS_OPTIONS.push(g + l);
+  });
+});
+
+/* ===================== SCORING ===================== */
+const LIKERT_RAW = { SS: 4, S: 3, TS: 2, STS: 1 };
+
+function scoreItem(answer, type) {
+  const raw = LIKERT_RAW[answer];
+  if (raw === undefined) throw new Error("Jawaban tidak valid untuk item");
+  return type === "F" ? raw : (5 - raw);
+}
+
+function categorize(pct) {
+  if (pct > 80) return "SB";
+  if (pct > 60) return "B";
+  if (pct > 40) return "C";
+  if (pct > 20) return "K";
+  return "SK";
+}
+
+function computeResults(answers) {
+  const perIndicator = {};
+  INDICATORS.forEach(function (ind) {
+    const items = ITEMS.filter(function (it) { return it.indicator === ind.id; });
+    let raw = 0;
+    items.forEach(function (it) {
+      raw += scoreItem(answers[it.id], it.type);
+    });
+    const pct = ((raw - 10) / 30) * 100;
+    perIndicator[ind.id] = { raw: raw, pct: pct, cat: categorize(pct) };
+  });
+  const totalRaw = Object.keys(perIndicator).reduce(function (sum, k) {
+    return sum + perIndicator[k].raw;
+  }, 0);
+  const totalPct = ((totalRaw - 50) / 150) * 100;
+  return { perIndicator: perIndicator, total: { raw: totalRaw, pct: totalPct, cat: categorize(totalPct) } };
+}
+
+function allAnswered(answers) {
+  return ITEMS.every(function (it) { return answers[it.id] !== undefined; });
+}
+
+/* ===================== NETWORK (jembatan ke Google Sheets) ===================== */
+async function checkExisting(kelas, noAbsen) {
+  if (!IS_CONFIGURED) return null;
+  try {
+    const url = SHEET_API_URL + "?secret=" + encodeURIComponent(API_SECRET) +
+      "&action=check&kelas=" + encodeURIComponent(kelas) + "&noAbsen=" + encodeURIComponent(noAbsen);
+    const res = await fetch(url);
+    const json = await res.json();
+    if (json && json.ok) return json.found;
+    return null;
+  } catch (e) {
+    return null;
+  }
+}
+
+async function submitToSheet(payload) {
+  if (!IS_CONFIGURED) return false;
+  try {
+    const res = await fetch(SHEET_API_URL, {
+      method: "POST",
+      body: JSON.stringify({ secret: API_SECRET, data: payload })
+    });
+    const json = await res.json();
+    return !!(json && json.ok);
+  } catch (e) {
+    return false;
+  }
+}
+
+async function fetchAllSubmissions() {
+  if (!IS_CONFIGURED) return { ok: false, data: [], error: "Belum dikonfigurasi" };
+  try {
+    const url = SHEET_API_URL + "?secret=" + encodeURIComponent(API_SECRET);
+    const res = await fetch(url);
+    const json = await res.json();
+    if (json && json.ok) return { ok: true, data: json.data || [] };
+    return { ok: false, data: [], error: (json && json.error) || "Gagal mengambil data" };
+  } catch (e) {
+    return { ok: false, data: [], error: String(e) };
+  }
+}
+/* ===================== STATE ===================== */
+const state = {
+  view: IS_CONFIGURED ? "studentForm" : "notConfigured",
+  student: null,
+  answers: {},
+  quizPage: 0,
+  resultData: null,
+  formError: "",
+  duplicateInfo: null,
+  checking: false
+};
+
+const chartInstances = {};
+function destroyChart(id) {
+  if (chartInstances[id]) { chartInstances[id].destroy(); delete chartInstances[id]; }
+}
+
+function escapeHtml(s) {
+  return String(s == null ? "" : s)
+    .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+}
+
+function fmtDate(iso) {
+  try {
+    const d = new Date(iso);
+    return d.toLocaleDateString("id-ID", { day: "2-digit", month: "short", year: "numeric" }) +
+      " " + d.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" });
+  } catch (e) { return iso || "-"; }
+}
+
+function badgeHtml(cat) {
+  const info = CATEGORY_INFO[cat] || { label: cat, bg: "#999", text: "#fff" };
+  return '<span class="badge" style="background:' + info.bg + ";color:" + info.text + '">' +
+    cat + " &middot; " + info.label + "</span>";
+}
+
+function showToast(msg) {
+  const t = document.getElementById("toast");
+  if (!t) return;
+  t.textContent = msg;
+  t.classList.add("show");
+  setTimeout(function () { t.classList.remove("show"); }, 4500);
+}
+
+/* ===================== RENDER DISPATCH ===================== */
+function render() {
+  const app = document.getElementById("app");
+  let html = "";
+  switch (state.view) {
+    case "notConfigured": html = renderNotConfigured(); break;
+    case "studentForm": html = renderStudentForm(); break;
+    case "duplicateCheck": html = renderDuplicateCheck(); break;
+    case "quiz": html = renderQuiz(); break;
+    case "studentResult": html = renderResultView(state.resultData, state.student); break;
+    default: html = renderStudentForm();
+  }
+  app.innerHTML = html;
+  window.scrollTo(0, 0);
+  if (state.view === "studentResult") renderResultCharts(state.resultData);
+}
+
+function renderNotConfigured() {
+  return (
+    '<div class="card-page narrow">' +
+      "<h2>Pengaturan Belum Lengkap</h2>" +
+      '<p class="muted">Halaman ini belum terhubung ke sistem penyimpanan data. Mohon hubungi Guru BK untuk melengkapi pengaturan terlebih dahulu (URL Google Sheets belum ditempel di file ini).</p>' +
+    "</div>"
+  );
+}
+
+/* ===================== STUDENT FORM ===================== */
+function renderStudentForm() {
+  const kelasOpts = KELAS_OPTIONS.map(function (k) {
+    return '<option value="' + k + '">' + k + "</option>";
+  }).join("");
+  return (
+    '<div class="card-page">' +
+      '<div class="hero-small">' +
+        '<p class="eyebrow">Bimbingan &amp; Konseling</p>' +
+        "<h1>Buku Catatan Perkembangan Diri</h1>" +
+        '<p class="lead">Angket tugas perkembangan untuk siswa SMP. Isi jawabanmu dengan jujur, lalu lihat hasilnya langsung dalam bentuk grafik dan cerita singkat tentang dirimu.</p>' +
+      "</div>" +
+      "<h2>Data Diri</h2>" +
+      (state.formError ? '<div class="alert-error">' + escapeHtml(state.formError) + "</div>" : "") +
+      '<div class="form-grid">' +
+        '<label>Nama Lengkap<input type="text" id="f_namaLengkap" placeholder="Contoh: Ahmad Fauzan Pratama"></label>' +
+        '<label>Nama Panggilan<input type="text" id="f_namaPanggilan" placeholder="Contoh: Fauzan"></label>' +
+        '<label>Kelas<select id="f_kelas"><option value="">Pilih kelas</option>' + kelasOpts + "</select></label>" +
+        '<label>No. Absen<input type="number" id="f_noAbsen" min="1" max="60" placeholder="Contoh: 12"></label>' +
+      "</div>" +
+      '<button class="btn-primary" id="startBtn" onclick="startQuiz()">Mulai Mengisi Angket</button>' +
+      '<p class="footnote">Catatan: hasil pengisianmu akan dikirim ke sistem milik Guru BK.</p>' +
+    "</div>"
+  );
+}
+
+async function startQuiz() {
+  const namaLengkap = document.getElementById("f_namaLengkap").value.trim();
+  const namaPanggilan = document.getElementById("f_namaPanggilan").value.trim();
+  const kelas = document.getElementById("f_kelas").value;
+  const noAbsen = document.getElementById("f_noAbsen").value.trim();
+
+  if (!namaLengkap || !namaPanggilan || !kelas || !noAbsen) {
+    state.formError = "Mohon lengkapi semua data terlebih dahulu.";
+    render();
+    return;
+  }
+  if (!/^[0-9]+$/.test(noAbsen) || Number(noAbsen) < 1) {
+    state.formError = "No. Absen harus berupa angka.";
+    render();
+    return;
+  }
+  state.formError = "";
+  state.student = { namaLengkap: namaLengkap, namaPanggilan: namaPanggilan, kelas: kelas, noAbsen: noAbsen };
+
+  const btn = document.getElementById("startBtn");
+  if (btn) { btn.textContent = "Memeriksa data..."; btn.disabled = true; }
+
+  const existing = await checkExisting(kelas, noAbsen);
+
+  if (existing) {
+    state.duplicateInfo = existing;
+    state.view = "duplicateCheck";
+    render();
+    return;
+  }
+  state.answers = {};
+  state.quizPage = 0;
+  state.view = "quiz";
+  render();
+}
+
+function renderDuplicateCheck() {
+  const d = state.duplicateInfo;
+  return (
+    '<div class="card-page narrow">' +
+      "<h2>Kamu Sudah Pernah Mengisi</h2>" +
+      '<p class="muted">Data untuk <strong>' + escapeHtml(d.namaLengkap) + "</strong> (Kelas " + escapeHtml(d.kelas) +
+        ", No. Absen " + escapeHtml(d.noAbsen) + ") sudah pernah mengisi angket ini pada " + fmtDate(d.savedAt) + "." +
+      "</p>" +
+      '<p class="muted">Kamu bisa melihat hasil yang sudah ada, atau mengisi ulang jika ingin memperbarui jawabanmu.</p>' +
+      '<div class="duplicate-actions">' +
+        '<button class="btn-secondary" onclick="useOldResult()">Lihat Hasil Sebelumnya</button>' +
+        '<button class="btn-primary" onclick="refillQuiz()">Isi Ulang dari Awal</button>' +
+      "</div>" +
+    "</div>"
+  );
+}
+
+function useOldResult() {
+  state.resultData = state.duplicateInfo.results;
+  state.student = state.duplicateInfo;
+  state.view = "studentResult";
+  render();
+}
+
+function refillQuiz() {
+  state.answers = {};
+  state.quizPage = 0;
+  state.view = "quiz";
+  render();
+}
+
+/* ===================== QUIZ ===================== */
+function renderQuiz() {
+  const ind = INDICATORS[state.quizPage];
+  const items = ITEMS.filter(function (it) { return it.indicator === ind.id; });
+  const answeredCount = Object.keys(state.answers).length;
+  const progressPct = Math.round((answeredCount / ITEMS.length) * 100);
+
+  const itemsHtml = items.map(function (it, idx) {
+    const choices = ["SS", "S", "TS", "STS"].map(function (c) {
+      const selected = state.answers[it.id] === c ? " selected" : "";
+      return '<button type="button" class="choice-btn' + selected + '" onclick="selectAnswer(' + it.id + ",'" + c + "')\">" + c + "</button>";
+    }).join("");
+    return (
+      '<div class="quiz-item" id="item-' + it.id + '">' +
+        '<p class="item-text"><span class="item-no">' + (idx + 1) + ". </span>" + escapeHtml(it.text) + "</p>" +
+        '<div class="choices" id="choices-' + it.id + '">' + choices + "</div>" +
+      "</div>"
+    );
+  }).join("");
+
+  return (
+    '<div class="card-page quiz-page">' +
+      '<div class="progress-wrap">' +
+        '<div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:' + progressPct + '%"></div></div>' +
+        '<p class="progress-label" id="progressLabel">' + answeredCount + " dari " + ITEMS.length + " pertanyaan terjawab</p>" +
+      "</div>" +
+      '<p class="section-label">Bagian ' + (state.quizPage + 1) + " dari " + INDICATORS.length + "</p>" +
+      "<h2>" + ind.name + "</h2>" +
+      '<p class="muted">' + ind.desc + "</p>" +
+      '<div class="likert-key">SS = Sangat Setuju &middot; S = Setuju &middot; TS = Tidak Setuju &middot; STS = Sangat Tidak Setuju</div>' +
+      (state.formError ? '<div class="alert-error">' + escapeHtml(state.formError) + "</div>" : "") +
+      '<div class="quiz-list">' + itemsHtml + "</div>" +
+      '<div class="quiz-nav">' +
+        (state.quizPage > 0 ? '<button class="btn-secondary" onclick="prevPage()">&larr; Sebelumnya</button>' : "<span></span>") +
+        '<button class="btn-primary" id="nextBtn" onclick="nextPage()">' +
+          (state.quizPage === INDICATORS.length - 1 ? "Lihat Hasil" : "Selanjutnya &rarr;") +
+        "</button>" +
+      "</div>" +
+    "</div>"
+  );
+}
+
+function selectAnswer(itemId, value) {
+  state.answers[itemId] = value;
+  const container = document.getElementById("choices-" + itemId);
+  if (container) {
+    const btns = container.querySelectorAll(".choice-btn");
+    btns.forEach(function (b) { b.classList.toggle("selected", b.textContent.trim() === value); });
+  }
+  const answeredCount = Object.keys(state.answers).length;
+  const progressPct = Math.round((answeredCount / ITEMS.length) * 100);
+  const fill = document.getElementById("progressFill");
+  const label = document.getElementById("progressLabel");
+  if (fill) fill.style.width = progressPct + "%";
+  if (label) label.textContent = answeredCount + " dari " + ITEMS.length + " pertanyaan terjawab";
+}
+
+function currentPageItems() {
+  const ind = INDICATORS[state.quizPage];
+  return ITEMS.filter(function (it) { return it.indicator === ind.id; });
+}
+
+function prevPage() {
+  if (state.quizPage > 0) { state.quizPage--; state.formError = ""; render(); }
+}
+
+async function nextPage() {
+  const items = currentPageItems();
+  const missing = items.some(function (it) { return state.answers[it.id] === undefined; });
+  if (missing) {
+    state.formError = "Mohon jawab semua pertanyaan di bagian ini sebelum lanjut.";
+    render();
+    return;
+  }
+  state.formError = "";
+  if (state.quizPage < INDICATORS.length - 1) {
+    state.quizPage++;
+    render();
+  } else {
+    await finishQuiz();
+  }
+}
+
+async function finishQuiz() {
+  const nextBtn = document.getElementById("nextBtn");
+  if (nextBtn) { nextBtn.textContent = "Mengirim..."; nextBtn.disabled = true; }
+  const results = computeResults(state.answers);
+  const payload = {
+    namaLengkap: state.student.namaLengkap,
+    namaPanggilan: state.student.namaPanggilan,
+    kelas: state.student.kelas,
+    noAbsen: state.student.noAbsen,
+    answers: state.answers,
+    results: results,
+    savedAt: new Date().toISOString()
+  };
+  const success = await submitToSheet(payload);
+  state.resultData = results;
+  state.view = "studentResult";
+  render();
+  if (!success) {
+    showToast("Hasil sudah dihitung, tapi gagal terkirim ke sistem Guru BK. Mohon screenshot halaman ini dan beri tahu Guru BK secara langsung.");
+  }
+}
+
+/* ===================== RESULT ===================== */
+function renderResultView(results, person) {
+  const total = results.total;
+  const indicatorCards = INDICATORS.map(function (ind) {
+    const r = results.perIndicator[ind.id];
+    return (
+      '<div class="ind-card">' +
+        '<div class="ind-card-head"><h3>' + ind.name + "</h3>" + badgeHtml(r.cat) + "</div>" +
+        '<p class="ind-narrative">' + NARRATIVES[ind.id][r.cat] + "</p>" +
+      "</div>"
+    );
+  }).join("");
+
+  return (
+    '<div class="card-page result-page">' +
+      '<div class="result-header">' +
+        '<p class="eyebrow">Hasil Angket Tugas Perkembangan</p>' +
+        "<h2>" + escapeHtml(person.namaPanggilan || person.namaLengkap) + "</h2>" +
+        '<p class="muted">' + escapeHtml(person.namaLengkap) + " &middot; Kelas " + escapeHtml(person.kelas) +
+          " &middot; No. Absen " + escapeHtml(person.noAbsen) + "</p>" +
+      "</div>" +
+      '<div class="total-block">' +
+        '<div class="seal seal-' + total.cat + '">' + total.cat + "</div>" +
+        '<div class="total-text">' +
+          '<p class="total-label">Kategori Keseluruhan: <strong>' + CATEGORY_INFO[total.cat].label + "</strong></p>" +
+          "<p>" + OVERALL_NARRATIVES[total.cat] + "</p>" +
+        "</div>" +
+      "</div>" +
+      '<div class="charts-grid">' +
+        '<div class="chart-box"><canvas id="radarChart"></canvas></div>' +
+        '<div class="chart-box"><canvas id="barChart"></canvas></div>' +
+      "</div>" +
+      '<div class="ind-cards">' + indicatorCards + "</div>" +
+      '<div class="result-actions">' +
+        '<button class="btn-secondary" onclick="window.print()">Cetak Hasil</button>' +
+        '<button class="btn-primary" onclick="backToForm()">Selesai</button>' +
+      "</div>" +
+    "</div>"
+  );
+}
+
+function backToForm() {
+  state.view = "studentForm";
+  state.student = null;
+  state.answers = {};
+  state.quizPage = 0;
+  state.resultData = null;
+  render();
+}
+
+function renderResultCharts(results) {
+  const labels = INDICATORS.map(function (ind) { return ind.name; });
+  const pctValues = INDICATORS.map(function (ind) { return Math.round(results.perIndicator[ind.id].pct); });
+  const colors = INDICATORS.map(function (ind) { return CATEGORY_INFO[results.perIndicator[ind.id].cat].bg; });
+
+  destroyChart("radarChart");
+  destroyChart("barChart");
+
+  const radarCtx = document.getElementById("radarChart");
+  if (radarCtx) {
+    chartInstances.radarChart = new Chart(radarCtx, {
+      type: "radar",
+      data: { labels: labels, datasets: [{ label: "Capaian (%)", data: pctValues, backgroundColor: "rgba(47,158,143,0.20)", borderColor: "#2F9E8F", pointBackgroundColor: "#2F9E8F", borderWidth: 2 }] },
+      options: { responsive: true, scales: { r: { min: 0, max: 100, ticks: { stepSize: 20 } } }, plugins: { legend: { display: false } } }
+    });
+  }
+  const barCtx = document.getElementById("barChart");
+  if (barCtx) {
+    chartInstances.barChart = new Chart(barCtx, {
+      type: "bar",
+      data: { labels: INDICATORS.map(function (ind, i) { return "Ind " + (i + 1); }), datasets: [{ label: "Capaian (%)", data: pctValues, backgroundColor: colors }] },
+      options: { responsive: true, scales: { y: { min: 0, max: 100 } }, plugins: { legend: { display: false } } }
+    });
+  }
+}
+
+function boot() { render(); }
+
+document.addEventListener("DOMContentLoaded", boot);
+</script>
+</body>
+</html>
